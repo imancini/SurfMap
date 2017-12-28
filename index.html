@@ -8,27 +8,54 @@
     path:hover {
       fill-opacity: 0.75;
     }
+    .click-circle {
+      fill-opacity: 0.75;
+      fill: red;
+    }
+
+    /* Style for Custom Tooltip */
+    div.tooltip {   
+      position: absolute;           
+      text-align: center;           
+      width: 60px;                  
+      height: 20px;                 
+      padding: 2px;             
+      font: 12px sans-serif;        
+      background: white;   
+      border: 0px;      
+      border-radius: 4px;           
+      pointer-events: none;         
+    }
     </style>
 
   <body>
     <script type="text/javascript">
       var width = 960;
       var height = 600;
+      var scale = 1000;
+      var centered;
     	
       //Define map projection
       var projection = d3.geoAlbersUsa()
           //translate to center of screen
           .translate([width/2, height/2])    
           // scaling down
-          .scale([1000]);          
+          .scale([scale]);          
 
       //Define path generator
       var path = d3.geoPath().projection(projection);
+      
 
       var svg = d3.select("body")
           .append("svg")
           .attr("width", width)
           .attr("height", height);
+
+      // Append Div for tooltip to SVG
+      var div = d3.select("body")
+          .append("div")   
+          .attr("class", "tooltip")               
+          .style("opacity", 0);
 
       //Load in states surfed data
     	d3.csv("statessurfed.csv", function(data) {
@@ -54,7 +81,6 @@
           }
       }
         
-        var clicked = 0;
         //draw the map with json values
         svg.selectAll("path")
             .data(json.features)
@@ -73,17 +99,83 @@
               }
             })
             .on("click", function (d) { 
+
+                var coords = d3.mouse(this);
+                console.log(coords);
+                drawCircle(coords[0], coords[1], 5);
+                /* 
                 //toggle color of state on click
                 var color = d3.select(this).style("fill");
-                console.log(color);
                 if(color == "steelblue" ){
                     d3.select(this).style("fill", "rgb(200,200,200)");
                 }else{
                     d3.select(this).style("fill", "steelblue");
                 }
-            })    
+                */
+                
+                d3.select(this).style("fill", "steelblue");
+            }) 
+
+            /* disable right click menu (not working in chrome right now for some reason) */
+            // .on('contextmenu', function(){ 
+            //     d3.event.preventDefault();
+            //     rightClicked();
+            //     console.log("here");
+            // });
     	  });
       });
+
+      function drawCircle(x, y, size) {
+          console.log('Drawing circle at', x, y, size);
+          svg.append("circle")
+              .attr('class', 'click-circle')
+              .attr("cx", x)
+              .attr("cy", y)
+              .attr("r", size)
+              // Modification of custom tooltip code provided by Malcolm Maclean, "D3 Tips and Tricks" 
+              // http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
+              .on("mouseover", function(d) {      
+                  div.transition()        
+                       .duration(200)      
+                       .style("opacity", .9); 
+                       div.text("test spot")
+                       .style("left", (d3.event.pageX) + "px")     
+                       .style("top", (d3.event.pageY - 28) + "px");     
+                         
+              })
+              // fade out tooltip on mouse out               
+              .on("mouseout", function(d) {       
+                  div.transition()        
+                     .duration(500)      
+                     .style("opacity", 0);   
+              });   
+      }
+
+      // function rightClicked(d) {
+      //     var x, y, k;
+      //     console.log("inside rightClicked");
+      //     if (d && centered !== d) {
+      //       var centroid = path.centroid(d);
+      //       x = centroid[0];
+      //       y = centroid[1];
+      //       k = 4;
+      //       centered = d;
+      //     } else {
+      //       x = width / 2;
+      //       y = height / 2;
+      //       k = 1;
+      //       centered = null;
+      //     }
+
+      //     svg.selectAll("path")
+      //         .classed("active", centered && function(d) { return d === centered; });
+
+      //     svg.transition()
+      //         .duration(750)
+      //         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+      //         .style("stroke-width", 1.5 / k + "px");
+      //   }
+
           
      </script>
    </body>
