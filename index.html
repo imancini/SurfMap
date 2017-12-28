@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <style type="text/css">
+
+    path:hover {
+      fill-opacity: 0.75;
+    }
+    </style>
+
+  <body>
+    <script type="text/javascript">
+      var width = 960;
+      var height = 600;
+    	
+      //Define map projection
+      var projection = d3.geoAlbersUsa()
+          //translate to center of screen
+          .translate([width/2, height/2])    
+          // scaling down
+          .scale([1000]);          
+
+      //Define path generator
+      var path = d3.geoPath().projection(projection);
+
+      var svg = d3.select("body")
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+      //Load in states surfed data
+    	d3.csv("statessurfed.csv", function(data) {
+
+    	//Load JSON data
+      d3.json("us-states.json", function(json) {
+      
+      //iterate through the states in the CSV file
+      for(var i = 0; i < data.length; i++){
+          //store each state in a var
+          var dataState = data[i].state;
+          //store where it has been surfed in a var
+          var dataSurfed = data[i].surfed;
+          //iterate through all 50 states in the json map
+          for(var j = 0; j < json.features.length; j++){
+              //store each state in a var for comparison
+              var jsonState = json.features[j].properties.name;
+              //For all states on the map, create a surfed property that matches the value in the CSV file
+              if(dataState == jsonState){
+                  json.features[j].properties.surfed = dataSurfed;
+                  break;
+              }
+          }
+      }
+        
+        var clicked = 0;
+        //draw the map with json values
+        svg.selectAll("path")
+            .data(json.features)
+            .enter()
+            .append("path")
+            .attr("d", path)
+            .style("stroke", "#fff")
+            .style("stroke-width", "1")	
+            .style("fill", function(d){
+              //make surfed states blue and unsurfed grey
+              value = d.properties.surfed;
+              if (value == 0){
+                return "rgb(200,200,200)";
+              }else{
+                return "steelblue";
+              }
+            })
+            .on("click", function (d) { 
+                //toggle color of state on click
+                var color = d3.select(this).style("fill");
+                console.log(color);
+                if(color == "steelblue" ){
+                    d3.select(this).style("fill", "rgb(200,200,200)");
+                }else{
+                    d3.select(this).style("fill", "steelblue");
+                }
+            })    
+    	  });
+      });
+          
+     </script>
+   </body>
+  </head>
+</html>
