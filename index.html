@@ -33,7 +33,7 @@
       var width = 960;
       var height = 600;
       var scale = 1000;
-      var centered;
+  
     	
       //Define map projection
       var projection = d3.geoAlbersUsa()
@@ -49,7 +49,8 @@
       var svg = d3.select("body")
           .append("svg")
           .attr("width", width)
-          .attr("height", height);
+          .attr("height", height)
+
 
       // Append Div for tooltip to SVG
       var div = d3.select("body")
@@ -98,32 +99,33 @@
                 return "steelblue";
               }
             })
-            .on("click", function (d) { 
+            .on("click", function (d) {
 
+                /* TODO: implement shift click to zoom via transform */ 
+                if (d3.event.shiftKey) {
+                   shiftClicked();
+                } 
+
+                /*draw a circle where mouse is clicked */
                 var coords = d3.mouse(this);
                 console.log(coords);
                 drawCircle(coords[0], coords[1], 5);
-                /* 
-                //toggle color of state on click
-                var color = d3.select(this).style("fill");
-                if(color == "steelblue" ){
-                    d3.select(this).style("fill", "rgb(200,200,200)");
-                }else{
-                    d3.select(this).style("fill", "steelblue");
-                }
-                */
+                /* -------------------------------- */
+                /* toggle color of state on click */
+                // var color = d3.select(this).style("fill");
+                // if(color == "steelblue" ){
+                //     d3.select(this).style("fill", "rgb(200,200,200)");
+                // }else{
+                //     d3.select(this).style("fill", "steelblue");
+                // }
+                /* -------------------------------- */
                 
+                /* when a state is clicked on, change its color to steelblue */
                 d3.select(this).style("fill", "steelblue");
             }) 
-
-            /* disable right click menu (not working in chrome right now for some reason) */
-            // .on('contextmenu', function(){ 
-            //     d3.event.preventDefault();
-            //     rightClicked();
-            //     console.log("here");
-            // });
     	  });
       });
+
 
       function drawCircle(x, y, size) {
           console.log('Drawing circle at', x, y, size);
@@ -137,8 +139,8 @@
               .on("mouseover", function(d) {      
                   div.transition()        
                        .duration(200)      
-                       .style("opacity", .9); 
-                       div.text("test spot")
+                       .style("opacity", .9);
+                       div.text("Surf Spot")
                        .style("left", (d3.event.pageX) + "px")     
                        .style("top", (d3.event.pageY - 28) + "px");     
                          
@@ -150,33 +152,7 @@
                      .style("opacity", 0);   
               });   
       }
-
-      // function rightClicked(d) {
-      //     var x, y, k;
-      //     console.log("inside rightClicked");
-      //     if (d && centered !== d) {
-      //       var centroid = path.centroid(d);
-      //       x = centroid[0];
-      //       y = centroid[1];
-      //       k = 4;
-      //       centered = d;
-      //     } else {
-      //       x = width / 2;
-      //       y = height / 2;
-      //       k = 1;
-      //       centered = null;
-      //     }
-
-      //     svg.selectAll("path")
-      //         .classed("active", centered && function(d) { return d === centered; });
-
-      //     svg.transition()
-      //         .duration(750)
-      //         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
-      //         .style("stroke-width", 1.5 / k + "px");
-      //   }
-
-          
+      
      </script>
    </body>
   </head>
